@@ -75,7 +75,11 @@ func NewHTTPServer(addr string) *http.Server {
 	defer db.Close()
 
 	mgr := sqlserver.MGRModel{DB: db}
+
 	communityGuidelines, err := mgr.GetAll()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	httpServer := &httpServer{Guidelines: communityGuidelines}
 

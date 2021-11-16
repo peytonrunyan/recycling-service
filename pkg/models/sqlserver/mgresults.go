@@ -2,7 +2,6 @@ package sqlserver
 
 import (
 	"database/sql"
-	"fmt"
 
 	"recycling-service/pkg/models"
 )
@@ -18,7 +17,7 @@ func (m *MGRModel) Get(cID string) (*models.MaterialGuidelineResults, error) {
 
 func (m *MGRModel) GetAll() (map[string]*[]models.MaterialGuidelineResults, error) {
 	query := `
-    SELECT top 100 [m_id]
+    SELECT [m_id]
           ,[community_id]
           ,[category]
           ,[yes_no]
@@ -34,8 +33,7 @@ func (m *MGRModel) GetAll() (map[string]*[]models.MaterialGuidelineResults, erro
 	mgResults := make(map[string]*[]models.MaterialGuidelineResults)
 	for rows.Next() {
 		m := models.MaterialGuidelineResults{}
-		err = rows.Scan(m.MID, m.CommunityID, m.Category, m.YesNo, m.CategoryType, m.Material)
-		fmt.Printf("m.CommunityID: %v\n", m.CommunityID)
+		err = rows.Scan(&m.MID, &m.CommunityID, &m.Category, &m.YesNo, &m.CategoryType, &m.Material)
 		if err != nil {
 			return nil, err
 		}
