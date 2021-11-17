@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	srv := server.NewHTTPServer(":" + "8082")
+	srv := server.NewHTTPServer("0.0.0.0:" + "8082")
 	fmt.Println("Listening on 8082")
 	log.Fatal(srv.ListenAndServe())
 }

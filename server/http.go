@@ -21,11 +21,11 @@ type RequestInfo struct {
 
 type SQLResult struct {
 	MID          int32  `json:"mID"`
-	CommunityID  string `json:communityID`
-	Category     string `json:category`
-	YesNo        string `json:yesNo`
-	CategoryType string `json:categoryType`
-	Material     string `json:material`
+	CommunityID  string `json:"communityID"`
+	Category     string `json:"category"`
+	YesNo        string `json:"yesNo"`
+	CategoryType string `json:"categoryType"`
+	Material     string `json:"material"`
 }
 
 type GuidelinesResponse struct {
@@ -34,6 +34,7 @@ type GuidelinesResponse struct {
 
 func (s *httpServer) communityGuidelines(w http.ResponseWriter, r *http.Request) {
 	log.Println("HIT")
+
 	var reqInfo RequestInfo
 	err := json.NewDecoder(r.Body).Decode(&reqInfo)
 	if err != nil {
@@ -41,8 +42,11 @@ func (s *httpServer) communityGuidelines(w http.ResponseWriter, r *http.Request)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	guidelines := s.Guidelines[reqInfo.CommunityID]
-
+	log.Println(reqInfo)
+	guidelines, _ := s.Guidelines[reqInfo.CommunityID]
+	if len(*guidelines) == 0 {
+		http.Error(w, "No results found for your location", http.StatusNotFound)
+	}
 	results := []SQLResult{}
 
 	for _, g := range *guidelines {
@@ -80,15 +84,19 @@ func NewHTTPServer(addr string) *http.Server {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	httpServer := &httpServer{Guidelines: communityGuidelines}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", httpServer.communityGuidelines).Methods("POST")
+	r.HandleFunc("/ping", httpServer.Ping).Methods("GET")
 
 	return &http.Server{
 		Addr:    addr,
 		Handler: r,
 	}
+}
+
+func (s *httpServer) Ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("It worked"))
 }
